@@ -28,12 +28,14 @@ public class ArtifactTest {
                 ISelectionStrategy.<String>OneRandomSelection()
                 );
 
-        builder.add(originDescriptor);
+        builder
+            .add(originDescriptor)
+            .withArtifactConsumer(ArtifactConsumer.PrintToConsoleArtifactConsumer());
         Artifact a = builder.build();
 
         assertNotNull("Artifact with no Descriptors should not be null", a );
 
-        a.output(ArtifactConsumer.PrintToConsoleArtifactConsumer());
+        a.output();
     }//testArtifactbuilder method
     
 }//test class

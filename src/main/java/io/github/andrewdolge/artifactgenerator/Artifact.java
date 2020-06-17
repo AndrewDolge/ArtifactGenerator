@@ -18,6 +18,7 @@ import io.github.andrewdolge.artifactgenerator.descriptor.IArtifactDescriptor;
 public class Artifact {
 
     private Map<String, Description> categoryToDescription;
+    private Consumer<Artifact> consumer;
 
     /**
      * creates a new Artifact from the given builder object
@@ -25,7 +26,7 @@ public class Artifact {
      */
     private Artifact(ArtifactBuilder builder){
 
-
+        this.consumer = builder.getConsumer();
         this.categoryToDescription = new HashMap<String,Description>();
 
         for(IArtifactDescriptor descriptor : builder.getDescriptors()){
@@ -96,15 +97,24 @@ public class Artifact {
     }
 
     /**
-     * Calls the given consumer, passing this as an argument to accept();
+     * Calls the given Artifact consumer, passing this as an argument to accept();
      * Useful for outputting an artifact with various methods.
      * 
-     * //TODO: look into. This seems a bit obtuse. We accept an Artifact Consumer (An anonymous lambda function that takes in an and returns void) and call its accept method on ourself?
-     * @param consumer an artifact consumer
+     * 
      */
-    public void output(Consumer<Artifact> consumer){
-        consumer.accept(this);
+    public void output(){
+        if(consumer!= null){
+            consumer.accept(this);
+        }
     }//output
+
+    /**
+     * sets the consumer to be used for output.
+     * @param consumer the consumer of the artifact
+     */
+    public void setConsumer(Consumer<Artifact> consumer){
+        this.consumer = consumer;
+    }//setConsumer
 
     /**
      *Inner static builder class for Artifacts.
@@ -115,6 +125,7 @@ public class Artifact {
     public static class ArtifactBuilder{
 
         private List<IArtifactDescriptor> descriptors;
+        private Consumer<Artifact> consumer;
 
         /**
          * Creates a new ArtifactBuilder.
@@ -147,6 +158,24 @@ public class Artifact {
          */
         private List<IArtifactDescriptor> getDescriptors(){
             return this.descriptors;
+        }
+
+        /**
+         * adds the specified Artifact Consumer to be used with {@link io.github.andrewdolge.artifactgenerator.Artifact#output()}
+         * @param consumer the Artifact Consumer
+         * @return this, for method chaining
+         */
+        public ArtifactBuilder withArtifactConsumer(Consumer<Artifact> consumer){
+            this.consumer = consumer;
+            return this;
+        }
+
+        /**
+         * private getter method for the consumer
+         * @return
+         */
+        private Consumer<Artifact> getConsumer(){
+            return this.consumer;
         }
 
     }//inner static builder class

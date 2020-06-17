@@ -17,14 +17,22 @@ public interface IArtifactDescriptor {
     
 
     /**
-     * Gets a list of descriptors to describe an Artifact generated with this component. 
+     * Gets a list of descriptions to describe an Artifact generated with this descriptor. 
      * Each call to this method should be thought of as describing a new Artifact.
      * 
      * @return a list of descriptions that describe a new Artifact.
      */
     public Description getDescription();
 
-
+    /**
+     * Gets a list of descriptions from this descriptor that is dependent on the current descriptions.
+     * This method should expect to receive descriptions with catogeries it specifies with the {@link #getDependentCategories()} method.
+     * 
+     * By default, this method returns a call to {@link #getDescription()}
+     * 
+     * @param dependents
+     * @return
+     */
     public default Description getDescription(List<Description> dependents){
         return getDescription();
     }
