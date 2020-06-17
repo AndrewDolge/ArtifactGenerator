@@ -6,21 +6,34 @@ package io.github.andrewdolge.artifactgenerator;
 import org.junit.Test;
 
 import io.github.andrewdolge.artifactgenerator.Artifact.ArtifactBuilder;
+import io.github.andrewdolge.artifactgenerator.descriptor.ISelectionStrategy;
+import io.github.andrewdolge.artifactgenerator.descriptor.ManualSelectionStrategyDescriptor;
 
 import static org.junit.Assert.*;
+
+import java.util.Arrays;
 
 public class ArtifactTest {
 
     /**
-     * Create an Artifact with no Descriptors.
+     * Create an Artifact with one Descriptor and output it to the console.
      * 
      */
     @Test public void testArtifactBuilder() {
         
         ArtifactBuilder builder = new ArtifactBuilder();
+        ManualSelectionStrategyDescriptor originDescriptor = new ManualSelectionStrategyDescriptor(
+                "Origin",
+                Arrays.asList("Level 1","Level 2","Level 3","Level 4","Level 5","Level 6","Level 7","Level 8"), 
+                ISelectionStrategy.<String>OneRandomSelection()
+                );
 
+        builder.add(originDescriptor);
         Artifact a = builder.build();
 
         assertNotNull("Artifact with no Descriptors should not be null", a );
-    }
-}
+
+        a.output(ArtifactConsumer.PrintToConsoleArtifactConsumer());
+    }//testArtifactbuilder method
+    
+}//test class
