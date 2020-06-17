@@ -6,12 +6,15 @@ package io.github.andrewdolge.artifactgenerator;
 import org.junit.Test;
 
 import io.github.andrewdolge.artifactgenerator.Artifact.ArtifactBuilder;
+import io.github.andrewdolge.artifactgenerator.descriptor.DepenedentManualDescriptor;
 import io.github.andrewdolge.artifactgenerator.descriptor.ISelectionStrategy;
-import io.github.andrewdolge.artifactgenerator.descriptor.ManualSelectionStrategyDescriptor;
+import io.github.andrewdolge.artifactgenerator.descriptor.SelectionStrategyManualDescriptor;
 
 import static org.junit.Assert.*;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 
 public class ArtifactTest {
 
@@ -22,7 +25,7 @@ public class ArtifactTest {
     @Test public void testArtifactBuilder() {
         
         ArtifactBuilder builder = new ArtifactBuilder();
-        ManualSelectionStrategyDescriptor originDescriptor = new ManualSelectionStrategyDescriptor(
+        SelectionStrategyManualDescriptor originDescriptor = new SelectionStrategyManualDescriptor(
                 "Origin",
                 Arrays.asList("Level 1","Level 2","Level 3","Level 4","Level 5","Level 6","Level 7","Level 8"), 
                 ISelectionStrategy.<String>OneRandomSelection()
@@ -37,5 +40,40 @@ public class ArtifactTest {
 
         a.output();
     }//testArtifactbuilder method
+
+    @Test public void testArtifactWithDependentDescriptor(){
+
+        ArtifactBuilder builder = new ArtifactBuilder();
+        SelectionStrategyManualDescriptor originDescriptor = new SelectionStrategyManualDescriptor(
+                "Origin",
+                Arrays.asList("Level 1","Level 2","Level 3","Level 4"), 
+                ISelectionStrategy.<String>OneRandomSelection()
+                );
+
+        HashMap<String,List<String>> map = new HashMap<>();
+
+        map.put("Level 1", Arrays.asList("Very Poor","Very Poor","Very Poor","Poor","Poor","Poor","Poor","Average","Average","Average"));
+        map.put("Level 2", Arrays.asList("Very Poor","Very Poor","Poor","Poor","Average","Average","Average","Average","Good","Good"));
+        map.put("Level 3", Arrays.asList("Poor","Poor","Average","Average","Average","Average","Good","Good","Good","Very Good"));
+        map.put("Level 4", Arrays.asList("Average","Average","Average","Average","Average","Good","Good","Good","Very Good","Very Good"));
+
+        
+
+        DepenedentManualDescriptor qualityDescriptor = new DepenedentManualDescriptor(map, "Quality","Origin",ISelectionStrategy.OneRandomSelection());
+
+
+        builder
+            .add(originDescriptor)
+            .add(qualityDescriptor)
+            .withArtifactConsumer(ArtifactConsumer.PrintToConsoleArtifactConsumer());
+
+        Artifact a = builder.build();
+
+        assertNotNull("Artifact with no Descriptors should not be null", a );
+
+        a.output();
+
+
+    }
     
 }//test class

@@ -20,12 +20,13 @@ public final class ArtifactConsumer {
     public static Consumer<Artifact> PrintToConsoleArtifactConsumer() {
 
         return artifact -> {
-            System.out.println("=================");
+            System.out.println();
             for(Description d: artifact.getAllDescriptions()){
+                System.out.println("--------");
                 System.out.println(d.getCategory());
                 for(String part: d.getParts()){
-                    System.out.println("--------");
-                    System.out.println(part);
+                    
+                    System.out.println("  " + part);
                 }
             }
         };

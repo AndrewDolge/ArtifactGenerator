@@ -17,10 +17,10 @@ public interface IArtifactDescriptor {
     
 
     /**
-     * Gets a list of descriptions to describe an Artifact generated with this descriptor. 
+     * Gets a description to describe an Artifact generated with this descriptor. 
      * Each call to this method should be thought of as describing a new Artifact.
      * 
-     * @return a list of descriptions that describe a new Artifact.
+     * @return A description that describes that artifact, otherwise null.
      */
     public Description getDescription();
 

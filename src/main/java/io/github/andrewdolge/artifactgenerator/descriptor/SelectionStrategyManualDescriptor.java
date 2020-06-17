@@ -9,16 +9,14 @@ import io.github.andrewdolge.artifactgenerator.Description;
  * 
  */
 
-//TODO: make this inherit from ManualDescriptor
-public class ManualSelectionStrategyDescriptor implements IArtifactDescriptor {
 
-    private String category;
-    private List<String> parts;
+public class SelectionStrategyManualDescriptor extends ManualDescriptor {
+
     private ISelectionStrategy<String> selector;
 
-    public ManualSelectionStrategyDescriptor(String category, List<String> parts, ISelectionStrategy<String> selector) {
-        this.category = category;
-        this.parts = List.copyOf(parts);
+    public SelectionStrategyManualDescriptor(String category, List<String> parts, ISelectionStrategy<String> selector) {
+        super(category, parts);
+
         this.selector = selector;
     }//constructor
 
@@ -27,7 +25,7 @@ public class ManualSelectionStrategyDescriptor implements IArtifactDescriptor {
      */
     @Override
     public Description getDescription() {
-        return new Description(category, selector.select(parts));
+        return new Description(super.getCategory(), selector.select(super.getParts()));
     }//getDescription
 
     
