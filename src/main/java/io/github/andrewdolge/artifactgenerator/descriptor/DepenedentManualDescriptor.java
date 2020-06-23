@@ -18,7 +18,6 @@ public class DepenedentManualDescriptor implements IArtifactDescriptor {
 
     @Override
     public Description getDescription() {
-        // TODO Auto-generated method stub
         return null;
     }
 

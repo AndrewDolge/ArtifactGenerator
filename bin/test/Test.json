@@ -1,0 +1,12 @@
+{
+    "Type": "Descriptor",
+    "Category":"Material",
+    "Data":[
+        "Stone",
+        "Precious Stone",
+        "Metal",
+        "Precious Metal",
+        "Special Mat.",
+        "Organic"
+    ]
+}

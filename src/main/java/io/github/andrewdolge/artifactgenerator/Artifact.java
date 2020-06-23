@@ -7,7 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
-import java.util.stream.Collector;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import io.github.andrewdolge.artifactgenerator.descriptor.IArtifactDescriptor;
@@ -49,10 +49,6 @@ public class Artifact {
 
         // while there are some dependent descriptors are left,
         // and the size HAS changed (meaning that the category could have been added by another dependent descriptor that has since been removed)
-        
-        boolean whileCondition =  !dependentDescriptors.isEmpty();
-        boolean whileCondition2 = remainingDependentDescriptors != dependentDescriptors.size();
-        
         while(!dependentDescriptors.isEmpty() && remainingDependentDescriptors != dependentDescriptors.size()){
 
             // update the remaining dependent descriptors
@@ -89,28 +85,46 @@ public class Artifact {
             }//while iter has next
         }//while
 
-
-        //TODO: when the dependent IArtifactDescriptors feature, this method should ask all the indepenedent descriptors first, and then provide the dependent descriptors with the descriptions they need.
+        //after the descriptions have been set, apply the filters.
+        //builder.getConditionToFilter().forEach((condition, filter) -> applyConditionalFilter(condition, filter));
 
         
+        for (Predicate<Artifact> condition : builder.getConditionToFilter().keySet()){
+            this.applyConditionalFilter(condition, builder.getConditionToFilter().get(condition));
+        }
+
     }//constructor
 
-
+    /**
+     * overloaded helper method that adds the description, with appending descriptions as a default.
+     * see {@link #addDescription(Description, boolean)}.
+     * @param toAdd the description to add
+     */
     private void addDescription(Description toAdd){
+        addDescription(toAdd, true);
+    }
+    /**
+     * private helper method that adds the description to the artifact.
+     * @param toAdd the description to add
+     * @param append whether or not to append descriptions together if they share the same category.
+     */
+    private void addDescription(Description toAdd, boolean append){
 
-
-        //If the category already exists, append the descriptions to the category
-        if(toAdd!= null){
-            //TODO: return this to a function call instead of a variable
+       //if toAdd and it's fields are not null, and it has some description parts, add it to the artifact
+        if(toAdd!= null && toAdd.getParts()!= null && toAdd.getCategory() != null && !toAdd.getParts().isEmpty()){
+           
+            
             String targetCategory = toAdd.getCategory();
 
-            if(this.categoryToDescription.get(targetCategory) != null){
+            //if we are appending descriptions, and the category has already been set
+            if(append && this.categoryToDescription.get(targetCategory) != null){
 
                 //TODO: reevaluate for efficency later. Lots of List copying.
                 //concatenate the existing description parts with the ones to add
                 List<String> concatenated = new LinkedList<String>(toAdd.getParts());
                 concatenated.addAll(this.categoryToDescription.get(targetCategory).getParts()  );
 
+                //add the combined descriptions together
                 categoryToDescription.put(toAdd.getCategory(), new Description(targetCategory, concatenated));
 
             }else{
@@ -154,6 +168,46 @@ public class Artifact {
     }
 
     /**
+     * Applies the given filter to the artifact.
+     * @param filter the filter to be applied to each description.
+     */
+    private void applyFilter(Predicate<Description> filter){
+ 
+        //we use an iterator because that allows us to remove keys and entries from the map safely.
+        //iterate over each key in the hashmap
+        Iterator<String> iter = this.categoryToDescription.keySet().iterator();
+
+        while(iter.hasNext()){
+            //if the description does not pass the test, remove it.
+            String key = iter.next();
+            Description desc = categoryToDescription.get(key);
+            if(desc != null && !filter.test(desc)){
+                iter.remove();
+            }//if
+        }//while
+        /* old implementation. Only removed the values from the list
+        this.categoryToDescription.replaceAll( 
+            (category, description) ->{
+                
+                if(filter.test(description)){
+                    return description;
+                }else{
+                    return null;
+                }
+            }
+          );
+          */
+
+    }//applyFilter
+    
+    
+    private void applyConditionalFilter(Predicate<Artifact> condition, Predicate<Description> filter){
+        if(condition.test(this)){
+            applyFilter(filter);
+        }
+    }
+    
+    /**
      * Calls the given Artifact consumer, passing this as an argument to accept();
      * Useful for outputting an artifact with various methods.
      * 
@@ -184,6 +238,7 @@ public class Artifact {
         private List<IArtifactDescriptor> independentDescriptors;
         private List<IArtifactDescriptor> dependentDescriptors;
         private Consumer<Artifact> consumer;
+        private HashMap<Predicate<Artifact>, Predicate<Description>> conditionToFilter;
 
         /**
          * Creates a new ArtifactBuilder.
@@ -192,6 +247,9 @@ public class Artifact {
         public ArtifactBuilder(){
             independentDescriptors = new LinkedList<IArtifactDescriptor>();
             dependentDescriptors = new LinkedList<IArtifactDescriptor>();
+
+            //multimap of conditions to filters
+            conditionToFilter = new HashMap<Predicate<Artifact>, Predicate<Description>>();
         }// Constructor
 
         /**
@@ -200,6 +258,10 @@ public class Artifact {
          * @return this artifact builder.
          */
         public ArtifactBuilder add(IArtifactDescriptor descriptor) {
+
+            if(descriptor == null){
+                throw new IllegalArgumentException("ArtifactBuilder.add: descriptor is null");
+            }
 
             if(descriptor.isDependent()){
                 dependentDescriptors.add(descriptor);
@@ -228,9 +290,45 @@ public class Artifact {
          * @return this, for method chaining
          */
         public ArtifactBuilder withArtifactConsumer(Consumer<Artifact> consumer) {
+            if(consumer == null){
+                throw new IllegalArgumentException("ArtifactBuilder.withArtifactConsumer: consumer is null");
+            }
             this.consumer = consumer;
             return this;
-        }
+        }//withArtifactConsumer
+
+        /**
+         * Adds a filter to the builder.
+         * @see {@link io.github.andrewdolge.artifactgenerator.descriptor.Predicate<Description>} and
+         * @see {@link io.github.andrewdolge.artifactgenerator.descriptor.Predicate<Artifact>}
+         * 
+         * @param condition the condition that determines if the filter should apply
+         * @param filter the filter to apply to the artifact's list of descriptions.
+         * @return this, for method chaining.
+         */
+        public ArtifactBuilder withFilter(Predicate<Artifact> condition, Predicate<Description> filter){
+
+            if(condition == null){
+                throw new IllegalArgumentException("ArtifactBuilder.withFilter: condition is null");
+            }
+
+            if(filter == null){
+                throw new IllegalArgumentException("ArtifactBuilder.withFilter: filter is null");
+            }
+            //if the condition already has a filter, add the filter to the condition (by joining the predicates with 'and')
+           if(this.conditionToFilter.get(condition) != null){
+
+                this.conditionToFilter.put(
+                    condition,
+                    conditionToFilter.get(condition).and(filter));
+
+            }else{
+                this.conditionToFilter.put(condition, filter );
+            }
+
+            return this;
+        }//withFilter
+
 
         /**
          * private getter method for the consumer
@@ -253,12 +351,18 @@ public class Artifact {
         /**
          * internal getter method for the list of dependent ArtifactDescriptors
          * 
-         * @return
+         * @return the list of dependent descriptors
          */
         private List<IArtifactDescriptor> getDependentDescriptors() {
             return this.dependentDescriptors;
         }
-
+        /**
+         * internal getter method for the conditional filters
+         * @return the mapping of conditions to filters
+         */
+        private HashMap<Predicate<Artifact>, Predicate<Description>> getConditionToFilter() {
+            return conditionToFilter;
+        }
 
 
     }//inner static builder class

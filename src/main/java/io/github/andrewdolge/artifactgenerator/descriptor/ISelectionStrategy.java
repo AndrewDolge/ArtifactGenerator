@@ -8,6 +8,8 @@ import java.util.Random;
  * An ISelector instance should be able to select any number of items from a
  * given list.
  * 
+ * An ISelectionStrategy should decide both which elements to select from the list, as well as how many to select.
+ * 
  */
 public interface ISelectionStrategy<T> {
     
@@ -45,6 +47,51 @@ public interface ISelectionStrategy<T> {
             return selected;
         };
     }//static OneRandomSelection
+
+
+    /**
+     * Returns any number of items from the list, randomly selected (without replacement) from the list.
+     * The number of selections is determined by the provided probabilities.
+     * 
+     * For example, the chance of drawing one item from the list is given by the initial probability.
+     * The probability of drawing a second item from the list is initialProbability * multipler.
+     * 
+     * The probability of drawing X number of items from the list is initialProbability * (multiplier)^(x-1) for x > 0.
+     * 
+     * @param <T> The type of the list
+     * @param initialProbability the probability of drawing the first item. Must be between 0 and 1, inclusive.
+     * @param multipler the multiplier to be applied to the draw probability, applied for each additional draw. Must be nonnegative.
+     * @return a selection strategy with the desired probability.
+     */
+    public static <T> ISelectionStrategy<T> AnyMultiplicativeProbabilityRandomSelection(double initialProbability, double multipler){
+
+        return list ->{
+
+             //create a new list to return
+             List<T> selected = new LinkedList<T>();
+
+            double currentProbability = initialProbability;
+
+            //should this function select another item?
+            while( selected.size() < list.size() && currentProbability > Math.random()   ){
+                T toSelect;
+
+                //while selecting, do not select an item that has already been selected.
+                do{
+                    //select a random element from the list
+                    toSelect = list.get(new Random().nextInt(list.size()));
+                }while(selected.contains(toSelect));
+
+                //add the item and increment the probability by the multiplier
+                selected.add(toSelect);
+                currentProbability = currentProbability * multipler;
+            }//while continue selecting
+
+            return selected;
+        };
+
+    }
+
 
     //TODO: Add SelectionStrategy for: Any Number of selections with replacement
     //TODO: Add SelectionStrategy for: Any Number of selections without replacement

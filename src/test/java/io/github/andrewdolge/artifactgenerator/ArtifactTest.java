@@ -6,17 +6,58 @@ package io.github.andrewdolge.artifactgenerator;
 import org.junit.Test;
 
 import io.github.andrewdolge.artifactgenerator.Artifact.ArtifactBuilder;
+import io.github.andrewdolge.artifactgenerator.descriptor.CustomDescriptor;
 import io.github.andrewdolge.artifactgenerator.descriptor.DepenedentManualDescriptor;
+import io.github.andrewdolge.artifactgenerator.descriptor.DescriptionFilters;
+import io.github.andrewdolge.artifactgenerator.descriptor.DescriptorDirector;
+import io.github.andrewdolge.artifactgenerator.descriptor.FilterConditions;
+import io.github.andrewdolge.artifactgenerator.descriptor.IArtifactDescriptor;
 import io.github.andrewdolge.artifactgenerator.descriptor.ISelectionStrategy;
+import io.github.andrewdolge.artifactgenerator.descriptor.ManualDescriptor;
 import io.github.andrewdolge.artifactgenerator.descriptor.SelectionStrategyManualDescriptor;
+import io.github.andrewdolge.artifactgenerator.descriptor.CustomDescriptor.CustomDescriptorBuilder;
 
 import static org.junit.Assert.*;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
 public class ArtifactTest {
+
+
+    private IArtifactDescriptor getOriginDescriptor(){
+        return new SelectionStrategyManualDescriptor(
+            "Origin",
+            Arrays.asList("Level 1","Level 2","Level 3","Level 4","Level 5","Level 6","Level 7","Level 8"), 
+            ISelectionStrategy.<String>OneRandomSelection()
+            );
+    }
+
+    private IArtifactDescriptor getColorDescriptor(double startProbability, double multiplier){
+        return new  SelectionStrategyManualDescriptor(
+            "Color", 
+            Arrays.asList("Blue", "Red", "Green", "Yellow", "White", "Black"),
+            ISelectionStrategy.AnyMultiplicativeProbabilityRandomSelection(startProbability, multiplier)
+            );
+    }
+
+    private IArtifactDescriptor getValueDescriptor(int value){
+        return new ManualDescriptor("Value", Arrays.asList(String.valueOf(value)));
+    }
+
+    private IArtifactDescriptor getJsonTestDescriptor() throws FileNotFoundException{
+        CustomDescriptorBuilder builder = new CustomDescriptorBuilder();
+        DescriptorDirector director = new DescriptorDirector(builder);
+
+        director.buildWithJson(
+            new FileInputStream("src/test/resources/Test.json")
+        );
+        
+        return builder.build();
+    }
 
     /**
      * Create an Artifact with one Descriptor and output it to the console.
@@ -25,15 +66,11 @@ public class ArtifactTest {
     @Test public void testArtifactBuilder() {
         
         ArtifactBuilder builder = new ArtifactBuilder();
-        SelectionStrategyManualDescriptor originDescriptor = new SelectionStrategyManualDescriptor(
-                "Origin",
-                Arrays.asList("Level 1","Level 2","Level 3","Level 4","Level 5","Level 6","Level 7","Level 8"), 
-                ISelectionStrategy.<String>OneRandomSelection()
-                );
 
         builder
-            .add(originDescriptor)
-            .withArtifactConsumer(ArtifactConsumer.PrintToConsoleArtifactConsumer());
+        .add(getOriginDescriptor())
+        .add(getColorDescriptor(0.75,0.75))
+        .withArtifactConsumer(ArtifactConsumer.PrintToConsoleArtifactConsumer());
         Artifact a = builder.build();
 
         assertNotNull("Artifact with no Descriptors should not be null", a );
@@ -44,12 +81,6 @@ public class ArtifactTest {
     @Test public void testArtifactWithDependentDescriptor(){
 
         ArtifactBuilder builder = new ArtifactBuilder();
-        SelectionStrategyManualDescriptor originDescriptor = new SelectionStrategyManualDescriptor(
-                "Origin",
-                Arrays.asList("Level 1","Level 2","Level 3","Level 4"), 
-                ISelectionStrategy.<String>OneRandomSelection()
-                );
-
         HashMap<String,List<String>> map = new HashMap<>();
 
         map.put("Level 1", Arrays.asList("Very Poor","Very Poor","Very Poor","Poor","Poor","Poor","Poor","Average","Average","Average"));
@@ -63,7 +94,7 @@ public class ArtifactTest {
 
 
         builder
-            .add(originDescriptor)
+            .add(getOriginDescriptor())
             .add(qualityDescriptor)
             .withArtifactConsumer(ArtifactConsumer.PrintToConsoleArtifactConsumer());
 
@@ -72,8 +103,41 @@ public class ArtifactTest {
         assertNotNull("Artifact with no Descriptors should not be null", a );
 
         a.output();
+    }
+    
+
+    @Test public void testArtifactWithFilters(){
+        ArtifactBuilder builder = new ArtifactBuilder();
+
+        builder.add(getOriginDescriptor())
+        .add(getColorDescriptor(0.75, 0.5))
+        .add(getValueDescriptor(8))
+        .withArtifactConsumer(ArtifactConsumer.PrintToConsoleArtifactConsumer())
+        .withFilter(
+            FilterConditions.isCategoryPresent("Color"),
+            DescriptionFilters.acceptOnly(Arrays.asList("Origin", "Color"))
+        );
+
+        builder.build()
+        .output();
 
 
     }
-    
+
+
+    @Test public void testArtifactWithJson(){
+        ArtifactBuilder builder = new ArtifactBuilder();
+
+        try{
+            builder.add(
+                getJsonTestDescriptor()
+                )
+            .withArtifactConsumer(ArtifactConsumer.PrintToConsoleArtifactConsumer())
+            .build()
+            .output();
+        }catch(FileNotFoundException fnfe){
+            throw new RuntimeException(fnfe);
+        }
+        
+    }
 }//test class
