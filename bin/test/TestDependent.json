@@ -1,0 +1,112 @@
+{
+    "Type": "Descriptor",
+    "Category":"Danger",
+    "Data":{
+        "dependent category": "Origin",
+        "Level 1":[
+            "Dangerous",
+            "Nuisance",
+            "Nuisance",
+            "Nuisance",
+            "Nuisance",
+            "Harmless",
+            "Harmless",
+            "Harmless",
+            "Harmless",
+            "Helpful"
+
+        ],
+        "Level 2":[
+            "Dangerous",
+            "Dangerous",
+            "Nuisance",
+            "Nuisance",
+            "Nuisance",
+            "Harmless",
+            "Harmless",
+            "Harmless",
+            "Helpful",
+            "Helpful"
+
+        ],
+        "Level 3":[
+            "Very Dangerous",
+            "Dangerous",
+            "Dangerous",
+            "Nuisance",
+            "Nuisance",
+            "Harmless",
+            "Harmless",
+            "Harmless",
+            "Helpful",
+            "Very Helpful"
+
+        ],
+        "Level 4":[
+           "Very Dangerous",
+            "Dangerous",
+            "Dangerous",
+            "Dangerous",
+            "Nuisance",
+            "Harmless",
+            "Harmless",
+            "Helpful",
+            "Helpful",
+            "Very Helpful"
+
+        ],
+        "Level 5":[
+
+            "Extreme Danger",
+            "Very Dangerous",
+            "Dangerous",
+            "Dangerous",
+            "Dangerous",
+            "Nuisance",
+            "Harmless",
+            "Helpful",
+            "Very Helpful",
+            "Beneficial"
+
+        ],
+        "Level 6":[
+            "Extreme Danger",
+            "Very Dangerous",
+            "Very Dangerous",
+            "Dangerous",
+            "Dangerous",
+            "Nuisance",
+            "Harmless",
+            "Helpful",
+            "Very Helpful"
+
+
+        ],
+        "Level 7":[
+            "Extreme Danger",
+            "Extreme Danger",
+            "Very Dangerous",
+            "Very Dangerous",
+            "Dangerous",
+            "Nuisance",
+            "Helpful",
+            "Very Helpful",
+            "Beneficial",
+            "Beneficial"
+
+        ],
+        "Level 8":[
+            "Cursed",
+            "Extreme Danger",
+            "Extreme Danger",
+            "Very Dangerous",
+            "Very Dangerous",
+            "Dangerous",
+            "Very Helpful",
+            "Beneficial",
+            "Beneficial",
+            "Blessed"
+        ]
+    }
+    
+}

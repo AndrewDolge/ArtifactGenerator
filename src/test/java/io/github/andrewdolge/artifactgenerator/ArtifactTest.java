@@ -6,7 +6,6 @@ package io.github.andrewdolge.artifactgenerator;
 import org.junit.Test;
 
 import io.github.andrewdolge.artifactgenerator.Artifact.ArtifactBuilder;
-import io.github.andrewdolge.artifactgenerator.descriptor.CustomDescriptor;
 import io.github.andrewdolge.artifactgenerator.descriptor.DepenedentManualDescriptor;
 import io.github.andrewdolge.artifactgenerator.descriptor.DescriptionFilters;
 import io.github.andrewdolge.artifactgenerator.descriptor.DescriptorDirector;
@@ -60,6 +59,33 @@ public class ArtifactTest {
     }
 
     /**
+     * Tests a descriptor from json with a specified selector
+     * @return
+     * @throws FileNotFoundException
+     */
+    private IArtifactDescriptor getJsonTestDescriptorWithSelector() throws FileNotFoundException{
+        CustomDescriptorBuilder builder = new CustomDescriptorBuilder();
+        DescriptorDirector director = new DescriptorDirector(builder);
+        director.buildWithJson(
+            new FileInputStream("src/test/resources/TestSelector.json")
+        );
+        
+        return builder.build();
+    }
+
+
+    private IArtifactDescriptor getJsonTestDescriptorWithDependent() throws FileNotFoundException{
+        CustomDescriptorBuilder builder = new CustomDescriptorBuilder();
+        DescriptorDirector director = new DescriptorDirector(builder);
+        director.buildWithJson(
+            new FileInputStream("src/test/resources/TestDependent.json")
+        );
+        
+        return builder.build();
+    }
+
+
+    /**
      * Create an Artifact with one Descriptor and output it to the console.
      * 
      */
@@ -105,7 +131,6 @@ public class ArtifactTest {
         a.output();
     }
     
-
     @Test public void testArtifactWithFilters(){
         ArtifactBuilder builder = new ArtifactBuilder();
 
@@ -124,7 +149,6 @@ public class ArtifactTest {
 
     }
 
-
     @Test public void testArtifactWithJson(){
         ArtifactBuilder builder = new ArtifactBuilder();
 
@@ -140,4 +164,40 @@ public class ArtifactTest {
         }
         
     }
+
+    @Test public void testArtifactWithJsonSelector()  {
+
+        ArtifactBuilder builder = new ArtifactBuilder();
+        try{
+            builder
+            .add(getOriginDescriptor())
+            .add(getJsonTestDescriptorWithSelector())
+            .withArtifactConsumer(ArtifactConsumer.PrintToConsoleArtifactConsumer())
+            .build()
+            .output();
+        }catch(FileNotFoundException fnfe){
+            throw new RuntimeException(fnfe);
+        }
+    }
+
+
+    @Test public void testArtifactWithJsonDependent(){
+        ArtifactBuilder builder = new ArtifactBuilder();
+
+        try {
+            builder
+            .add(getOriginDescriptor())
+            .add(getJsonTestDescriptorWithDependent())
+            .withArtifactConsumer(ArtifactConsumer.PrintToConsoleArtifactConsumer());
+
+        } catch (FileNotFoundException fnfe) {
+            throw new RuntimeException(fnfe);
+        }
+        Artifact a = builder.build();
+
+        assertNotNull("Artifact with no Descriptors should not be null", a );
+
+        a.output();
+    }
+
 }//test class

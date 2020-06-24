@@ -1,0 +1,26 @@
+{
+    "Type": "Descriptor",
+    "Category":"Meta Properties",
+    "Data":[
+        "Stable",
+        "Unstable - potency changes randomly",
+        "Wavering - range changes randomly",
+        "Sentient",
+        "Pressurized",
+        "Excluding - wielder excluded from effects",
+        "Proxy - material properties transferred to wielder",
+        "Functional organ",
+        "Living",
+        "Multiplying - artifact duplicates itself",
+        "Momentum - potency depends on speed"
+    ],
+    "Selector":{
+        "min": 0,
+        "max": 3,
+        "probability": 0.5,
+        "multiplier": 0.5,
+        "replacement": false
+    }
+
+
+}

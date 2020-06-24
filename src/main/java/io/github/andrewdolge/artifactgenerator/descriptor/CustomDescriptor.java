@@ -1,5 +1,6 @@
 package io.github.andrewdolge.artifactgenerator.descriptor;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -21,8 +22,6 @@ public class CustomDescriptor implements IArtifactDescriptor {
     private Map<String, List<String>> dependentData;
    
     private ISelectionStrategy<String> selector;
-
-   
 
     private CustomDescriptor(CustomDescriptorBuilder builder) {
         this.category = builder.getCategory();
@@ -58,12 +57,12 @@ public class CustomDescriptor implements IArtifactDescriptor {
            descriptions.size() == 1 && 
            descriptions.get(0) != null &&
            descriptions.get(0).getCategory() != null &&
-           descriptions.get(0).getCategory() == dependentCategory &&
+           descriptions.get(0).getCategory().equals(dependentCategory) &&
            descriptions.get(0).getParts() != null && !descriptions.get(0).getParts().isEmpty()
-          ){
+          ){ 
 
             List<String> toSelect = new LinkedList<String>();
-
+ 
             //for each part, check to see if it is in the hashmap of dependent data
             // add that data to the list to select from
             for(String key: descriptions.get(0).getParts()){
@@ -82,6 +81,16 @@ public class CustomDescriptor implements IArtifactDescriptor {
             return getDescription();
         }//else
     }//getDescription(dependents)
+
+    @Override
+    public List<String> getDependentCategories(){
+        if(this.dependentCategory != null){
+            return List.of(dependentCategory);
+        }else{
+            return Collections.emptyList();
+        }
+    }
+
 
     public static class CustomDescriptorBuilder implements DescriptorBuilder {
 

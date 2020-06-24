@@ -92,6 +92,75 @@ public interface ISelectionStrategy<T> {
 
     }
 
+    public static <T> ISelectionStrategy<T> CustomSelectionStrategy(int min, int max, double probability, double multiplier, boolean withReplacement){
+
+        if(min > max){
+            throw new IllegalArgumentException(String.format("ISelectionStrategy.CustomSelectionStrategy: min(%d) is greater than max(%d)", min,max));
+        }else if(min < 0){
+            throw new IllegalArgumentException(String.format("ISelectionStrategy.CustomSelectionStrategy: min(%d) must be nonnegative", min));
+        }else if(max < 0){
+            throw new IllegalArgumentException(String.format("ISelectionStrategy.CustomSelectionStrategy: max(%d) must be nonnegative", max));
+        }else if(probability < 0){
+            throw new IllegalArgumentException(String.format("ISelectionStrategy.CustomSelectionStrategy: probability(%f) must be nonnegative, and should be less than one", probability));
+        }
+
+        return list ->{
+
+            //if the maximum amount of items possible is greater than the size of the input list, and we are selecting without replacement
+            //we could get into an infinite loop, since the selector might try to pick another item when there are no more items to select, so throw an exception.
+            if(max > list.size() && !withReplacement){
+                throw new IllegalArgumentException(
+                    String.format(
+                        "ISelectionStrategy.CustomSelectionStrategy: max(%d) cannot be greater than list size(%d) when using 'Without Replacement.' ",
+                        max,
+                        list.size()
+                    )
+                );
+            }
+
+                         //create a new list to return
+                         List<T> selected = new LinkedList<T>();
+                         double currentProbability = probability;
+             
+                         //should this function select another item?
+                         while( 
+                            !(selected.size() >= max) &&//have we exceeded our maximum item count? then no
+                            !(!withReplacement && selected.size() == list.size()) && //have we exhausted all items to select? then no.
+                            (
+                                selected.size() < min || //do we need more items to meet the minimum? then yes
+                                currentProbability > Math.random() //did the probability succeed? then yes
+                            )  
+                         ){
+                             T toSelect;
+             
+                            // if with replacement, select a random item from the list.
+                             if(withReplacement){
+                                toSelect = list.get(new Random().nextInt(list.size()));
+                           
+                             }else{ // else without replacement
+                                //while selecting, do not select an item that has already been selected.
+
+                                do{
+                                    //select a random element from the list
+                                    toSelect = list.get(new Random().nextInt(list.size()));
+                                }while(selected.contains(toSelect));
+                             }//else
+
+                             //add the item and increment the probability by the multiplier
+                             selected.add(toSelect);
+
+                            // if we don't have enough items to satisfy the minimum, don't multiply the probability.
+                            // The first selection that was determined by the random draw should use the initial probability.
+                            if(selected.size() > min){
+                                currentProbability = currentProbability * multiplier;
+                            }
+                            
+                         }//while continue selecting
+             
+                         return selected;
+
+        };
+    }
 
     //TODO: Add SelectionStrategy for: Any Number of selections with replacement
     //TODO: Add SelectionStrategy for: Any Number of selections without replacement
