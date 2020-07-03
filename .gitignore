@@ -5,3 +5,6 @@
 build
 .vscode/launch.json
 .vscode/*
+
+descriptors/*.json
+markdown

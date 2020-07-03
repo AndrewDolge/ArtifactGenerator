@@ -1,0 +1,51 @@
+[
+  {
+    "category": "Category",
+    "data": [
+      "Result 1",
+      "Result 2"
+    ]
+  },
+  {
+    "category": "Dependent Category",
+    "dependentCategory": "Category",
+    "dependentData": {
+      "Result 1": [
+        "Result A",
+        "Result B"
+      ],
+      "Result 2": [
+        "Result C",
+        "Result D"
+      ]
+    }
+  },
+  {
+    "category": "Exclusive Category",
+    "data": [
+      "Result Q",
+      "Result X"
+    ],
+    "exclusive": [
+      "Dependent Category",
+      "Exclusive Category",
+      "Selector Category"
+    ]
+  },
+  {
+    "category": "Selector Category",
+    "data": [
+      "Result QRZ",
+      "Result ABC",
+      "Result DEF",
+      "Result GHI"
+    ],
+    "selector": {
+      "min": 1,
+      "max": 4,
+      "probability": 1.0,
+      "multiplier": 0.25,
+      "withReplacement": false
+    }
+  }
+]

@@ -17,7 +17,7 @@ import java.util.List;
  */
 public class Description {
 
-    private String category;
+    private final  String category;
     private List<String> parts;
 
     /**
@@ -38,7 +38,6 @@ public class Description {
 
         this.parts.addAll(parts);
     }// constructor
-
 
     /**
      * Merges the other description into this description
@@ -72,4 +71,6 @@ public class Description {
         return List.copyOf(this.parts);
     }//getParts
  
+
+    
 }

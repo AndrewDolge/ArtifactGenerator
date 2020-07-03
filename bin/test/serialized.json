@@ -1,0 +1,23 @@
+[
+    {
+    "category": "Default",
+    "data": [
+      "e1",
+      "e2"
+    ],
+    "dependentCategory": "Shape",
+    "dependentData": {
+      "Circle": [
+        "e3",
+        "e4"
+      ],
+      "Square": [
+        "e5",
+        "e6"
+      ]
+    },
+    "exclusive": [
+      "Default"
+    ]
+}
+]

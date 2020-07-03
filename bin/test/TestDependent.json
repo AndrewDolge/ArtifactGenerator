@@ -1,7 +1,7 @@
 {
-    "Type": "Descriptor",
-    "Category":"Danger",
-    "Data":{
+    "type": "Descriptor",
+    "category":"Danger",
+    "dependentData":{
         "dependent category": "Origin",
         "Level 1":[
             "Dangerous",

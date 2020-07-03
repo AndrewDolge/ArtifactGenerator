@@ -10,7 +10,9 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import io.github.andrewdolge.artifactgenerator.descriptor.IArtifactDescriptor;
+import io.github.andrewdolge.artifactgenerator.components.IArtifactComponentFactory;
+import io.github.andrewdolge.artifactgenerator.components.descriptors.IArtifactDescriptor;
+import io.github.andrewdolge.artifactgenerator.components.filters.IConditonalFilter;
 
 
 /**
@@ -94,6 +96,84 @@ public class Artifact {
         }
 
     }//constructor
+    
+    
+    /**
+     * returns an umodifiable list of all categories that can be used to describe this Artifact.
+     * @return a list of strings of the categories.
+     */
+    public List<String> getCategories(){
+
+        return List.copyOf(categoryToDescription.keySet());
+        
+    }//getDescriptors
+
+    /**
+     * Returns a Description for the given category of this Artifact.
+     * 
+     * @param category the category of the description. This should be taken from the {@link #getCategories()} method. 
+     * @return a Description that describe the object for the given category, or a description with an empty list if there is none.
+     */
+    public Description getDescription(String category){
+
+        //NOTE: relies on Description constructor with default empty list
+        return categoryToDescription.getOrDefault(category, new Description(category));
+
+        
+    }//getDescriptions
+
+    /**
+     * returns an immutable list of descriptions of the artifact.
+     * @return a list of descriptions of the artifact
+     */
+    public List<Description> getAllDescriptions(){
+        return List.copyOf(categoryToDescription.values());
+    }
+    
+    /**
+     * Calls the given Artifact consumer, passing this as an argument to accept();
+     * Useful for outputting an artifact with various methods.
+     * 
+     * 
+     */
+    public void output(){
+        if(consumer!= null){
+            consumer.accept(this);
+        }
+    }//output
+
+    /**
+     * sets the consumer to be used for output.
+     * @param consumer the consumer of the artifact
+     */
+    public void setConsumer(Consumer<Artifact> consumer){
+        this.consumer = consumer;
+    }//setConsumer
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((categoryToDescription == null) ? 0 : categoryToDescription.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        Artifact other = (Artifact) obj;
+        if (categoryToDescription == null) {
+            if (other.categoryToDescription != null)
+                return false;
+        } else if (!categoryToDescription.equals(other.categoryToDescription))
+            return false;
+        return true;
+    }
 
     /**
      * overloaded helper method that adds the description, with appending descriptions as a default.
@@ -135,37 +215,6 @@ public class Artifact {
 
     }
 
-    /**
-     * returns an umodifiable list of all categories that can be used to describe this Artifact.
-     * @return a list of strings of the categories.
-     */
-    public List<String> getCategories(){
-
-        return List.copyOf(categoryToDescription.keySet());
-        
-    }//getDescriptors
-
-    /**
-     * Returns a Description for the given category of this Artifact.
-     * 
-     * @param category the category of the description. This should be taken from the {@link #getCategories()} method. 
-     * @return a Description that describe the object for the given category, or a description with an empty list if there is none.
-     */
-    public Description getDescription(String category){
-
-        //NOTE: relies on Description constructor with default empty list
-        return categoryToDescription.getOrDefault(category, new Description(category));
-
-        
-    }//getDescriptions
-
-    /**
-     * returns an immutable list of descriptions of the artifact.
-     * @return a list of descriptions of the artifact
-     */
-    public List<Description> getAllDescriptions(){
-        return List.copyOf(categoryToDescription.values());
-    }
 
     /**
      * Applies the given filter to the artifact.
@@ -200,32 +249,13 @@ public class Artifact {
 
     }//applyFilter
     
-    
     private void applyConditionalFilter(Predicate<Artifact> condition, Predicate<Description> filter){
         if(condition.test(this)){
             applyFilter(filter);
         }
     }
     
-    /**
-     * Calls the given Artifact consumer, passing this as an argument to accept();
-     * Useful for outputting an artifact with various methods.
-     * 
-     * 
-     */
-    public void output(){
-        if(consumer!= null){
-            consumer.accept(this);
-        }
-    }//output
 
-    /**
-     * sets the consumer to be used for output.
-     * @param consumer the consumer of the artifact
-     */
-    public void setConsumer(Consumer<Artifact> consumer){
-        this.consumer = consumer;
-    }//setConsumer
 
     /**
      *Inner static builder class for Artifacts.
@@ -257,10 +287,10 @@ public class Artifact {
          * 
          * @return this artifact builder.
          */
-        public ArtifactBuilder add(IArtifactDescriptor descriptor) {
+        public ArtifactBuilder withDescriptor(IArtifactDescriptor descriptor) {
 
             if(descriptor == null){
-                throw new IllegalArgumentException("ArtifactBuilder.add: descriptor is null");
+                throw new IllegalArgumentException("ArtifactBuilder.withDescriptor: descriptor is null");
             }
 
             if(descriptor.isDependent()){
@@ -271,7 +301,44 @@ public class Artifact {
 
            
             return this;
-        }// add
+        }// withDescriptor
+
+
+        /**
+         * Adds filters and descriptors from the given IArtifactComponentFactory.
+         * 
+         *
+         * 
+         * @param factory
+         * @return
+         * @throws IllegalArgumentException if the factory is null, or the descriptors the factory 
+         */
+        public ArtifactBuilder withComponentFactory(IArtifactComponentFactory factory){
+            if(factory == null){
+                throw new IllegalArgumentException("ArtifactBuilder.withComponentFactory: factory is null");
+            }
+
+            List<IArtifactDescriptor> descriptors = factory.createDescriptors();
+            List<IConditonalFilter> filters = factory.createFilters();
+
+            if(descriptors != null){
+                for (IArtifactDescriptor descriptor : descriptors) {
+                    this.withDescriptor(descriptor);
+                }
+            }else{
+                throw new IllegalArgumentException("ArtifactBuilder.withComponentFactory: a descriptor from createDescriptors() is null!");
+            }
+
+            if(filters != null){
+                for (IConditonalFilter filter : filters) {
+                    this.withFilter(filter.getCondition(), filter.getFilter());
+                }
+            }else{
+                throw new IllegalArgumentException("ArtifactBuilder.withComponentFactory: a filter from createFilters() is null!");
+            }
+            
+            return this;
+        }
 
         /**
          * builds and returns the artifact.
@@ -366,6 +433,8 @@ public class Artifact {
 
 
     }//inner static builder class
+
+
 
 
 }//class

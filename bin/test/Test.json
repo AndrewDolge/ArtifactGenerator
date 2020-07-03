@@ -1,7 +1,7 @@
 {
-    "Type": "Descriptor",
-    "Category":"Material",
-    "Data":[
+    "type": "Descriptor",
+    "category":"Material",
+    "data":[
         "Stone",
         "Precious Stone",
         "Metal",
