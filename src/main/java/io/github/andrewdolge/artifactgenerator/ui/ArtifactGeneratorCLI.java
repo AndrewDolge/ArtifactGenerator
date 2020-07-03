@@ -27,6 +27,9 @@ import picocli.CommandLine.Option;
 @Command(name = "artifactgenerator", mixinStandardHelpOptions = true, version = "1.0", description = "generates artifacts from the shadowy origins...")
 public class ArtifactGeneratorCLI implements Callable<Integer> {
 
+    @Option(names = {"-c"})
+    private String customDescriptors;
+
     @Option(names = { "-d",
             "--descriptor-directory" },
              description = "The directory of files where descriptors and other modifiers live."
@@ -39,8 +42,7 @@ public class ArtifactGeneratorCLI implements Callable<Integer> {
     @Option(names = { "-m","--markdown" },description = "Tells the generator to create artifacts and output them as Markdown (.md) files in the given directory")
     private File markdownDirectory;
 
-    @Option(names = {"-c, --custom"},description = "Specify a custom descriptor with a given category and part.\nExample: -c \"Color=Red,White,Blue;Shape=Circle;\")")
-     private String customDescriptors;
+
 
     private Consumer<Artifact> consumer = ArtifactConsumer.PrintToConsole();
 
@@ -73,7 +75,6 @@ public class ArtifactGeneratorCLI implements Callable<Integer> {
                     SerializedArtifactComponent[] components = { 
                             SerializedArtifactComponent.independentExample(),
                             SerializedArtifactComponent.dependentExample(),
-                            SerializedArtifactComponent.exclusiveExample(),
                             SerializedArtifactComponent.selectorExample()
                         };
 
@@ -140,6 +141,7 @@ public class ArtifactGeneratorCLI implements Callable<Integer> {
         return 0;
     }// call
 
+    //TODO: add robust error checking
     private static List<IArtifactDescriptor> parseCLIDescriptor(String cliString) {
         List<IArtifactDescriptor> toReturn = new LinkedList<IArtifactDescriptor>();
         CustomDescriptorBuilder builder = new CustomDescriptorBuilder();

@@ -29,16 +29,14 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.8.6'
 
     //CLI formatter
-    compile 'info.picocli:picocli:4.3.2'
+    implementation 'info.picocli:picocli:4.3.2'
 
     // Use JUnit test framework
     testImplementation 'junit:junit:4.12'
 }
 
 
-
-application{
-    // Define the main class for the application
-    mainClassName = 'io.github.andrewdolge.artifactgenerator.ui.ArtifactGeneratorCLI'
+application {
+    mainClass = 'io.github.andrewdolge.artifactgenerator.ui.ArtifactGeneratorCLI'
 }
 
