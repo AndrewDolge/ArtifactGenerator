@@ -29,7 +29,7 @@ public class JsonArtifactComponentFactory implements IArtifactComponentFactory {
 
     public JsonArtifactComponentFactory(InputStream ... ins){
 
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        Gson gson = new GsonBuilder().create();
         this.descriptors = new LinkedList<IArtifactDescriptor>();
         this.filters = new LinkedList<IConditonalFilter>();
 

@@ -307,11 +307,9 @@ public class Artifact {
         /**
          * Adds filters and descriptors from the given IArtifactComponentFactory.
          * 
-         *
-         * 
          * @param factory
          * @return
-         * @throws IllegalArgumentException if the factory is null, or the descriptors the factory 
+         * @throws IllegalArgumentException if the factory is null, or the descriptors in the factory are null. 
          */
         public ArtifactBuilder withComponentFactory(IArtifactComponentFactory factory){
             if(factory == null){

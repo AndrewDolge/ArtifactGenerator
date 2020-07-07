@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
+import java.util.regex.Pattern;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -24,10 +25,12 @@ import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
-@Command(name = "artifactgenerator", mixinStandardHelpOptions = true, version = "1.0", description = "generates artifacts from the shadowy origins...")
+@Command(name = "artifactgenerator", mixinStandardHelpOptions = true, version = "1.1", description = "generates artifacts of shadowy origins...")
 public class ArtifactGeneratorCLI implements Callable<Integer> {
 
-    @Option(names = {"-c"})
+    @Option(names = {"-c", "--custom"},
+            description="Adds custom categories and descriptions to the artifact. Example: -c \'Color=red,blue;Shape=circle;\'"
+    )
     private String customDescriptors;
 
     @Option(names = { "-d",
@@ -121,13 +124,20 @@ public class ArtifactGeneratorCLI implements Callable<Integer> {
                 }
             } // if
         } // for
+
         //add custom descriptors from the command line. This should always be the last thing to be added to the artifact.
-        if(customDescriptors != null){
-            List<IArtifactDescriptor> cliDescriptors = parseCLIDescriptor(customDescriptors);
-            for(IArtifactDescriptor cliDescriptor: cliDescriptors){
-                artifactBuilder.withDescriptor(cliDescriptor);
-            }//for
-        }//if 
+        try{
+            if(customDescriptors != null){
+                List<IArtifactDescriptor> cliDescriptors = parseCLIDescriptor(customDescriptors);
+                for(IArtifactDescriptor cliDescriptor: cliDescriptors){
+                    artifactBuilder.withDescriptor(cliDescriptor);
+                }//for
+            }//if 
+        }catch(IllegalArgumentException iae){
+            System.out.format("Could not parse custom CLI descriptor: %s\n Type 'ArtifactGenerator -h` for help.", customDescriptors);
+            System.exit(-1);
+        }
+
 
 /*
     * ------------------------------------ output the Artifact---------------------------------------------------
@@ -141,26 +151,32 @@ public class ArtifactGeneratorCLI implements Callable<Integer> {
         return 0;
     }// call
 
-    //TODO: add robust error checking
-    private static List<IArtifactDescriptor> parseCLIDescriptor(String cliString) {
+    public static List<IArtifactDescriptor> parseCLIDescriptor(String cliString) {
         List<IArtifactDescriptor> toReturn = new LinkedList<IArtifactDescriptor>();
         CustomDescriptorBuilder builder = new CustomDescriptorBuilder();
-        String[] strDescriptors = cliString.split(";");
 
-        for (String strDescriptor : strDescriptors) {
-            builder.reset();
+        Pattern descriptorPattern = Pattern.compile(".+=.+;");
 
-            String category = strDescriptor.split("=")[0];
-            String[] parts  = strDescriptor.split("=")[1].split(",");
+        if(descriptorPattern.matcher(cliString).matches()){
+            String[] strDescriptors = cliString.split(";");
 
-            builder.withCategory(category);
-            builder.withIndependentData(parts);
-            builder.withSelectionStrategy(ISelectionStrategy.all());
+            for (String strDescriptor : strDescriptors) {
+                builder.reset();
+    
+                String category = strDescriptor.split("=")[0];
+                String[] parts  = strDescriptor.split("=")[1].split(",");
+    
+                builder.withCategory(category)
+                .withIndependentData(parts)
+                .withSelectionStrategy(ISelectionStrategy.all());
 
-            toReturn.add(builder.build());
+                toReturn.add(builder.build());
+    
+            }//for
+            return toReturn;
 
-        }//for
-        return toReturn;
-
-    }// parseCLIDescriptor
+        }else{
+            throw new IllegalArgumentException("ArtifactGeneratorCLI.parseCLIDescriptor: invalid descriptor string! ");
+        }
+    }//parseCLIDescriptor
 }// class
