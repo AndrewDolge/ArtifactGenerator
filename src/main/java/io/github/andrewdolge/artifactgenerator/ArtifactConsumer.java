@@ -3,6 +3,7 @@ package io.github.andrewdolge.artifactgenerator;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.Writer;
 import java.util.function.Consumer;
 
@@ -22,7 +23,7 @@ public final class ArtifactConsumer {
      * 
      * @return
      */
-        public static Consumer<Artifact> PrintToConsole() {
+    public static Consumer<Artifact> PrintToConsole() {
 
         return artifact -> {
             System.out.println();
@@ -39,55 +40,56 @@ public final class ArtifactConsumer {
     }// ArtifactPrintConsumer
 
     /**
-     * Writes out the artifact to a markdown file.
-     * @param directory
-     * @param nameCategory
-     * @return
+     * Writes out artifacts to a markdown file.
+     * 
+     * @param directory    the root directory to store artifact files.
+     * @param nameCategory the category of the artifact that should be used as a
+     *                     name.
+     * @return a lambda that writes the artifact to markdown.
+     * 
+     * @throws IllegalArgumentException if the given directory isn't a directory
+     * @throws IOException              if this expression can't write to a
+     *                                  directory
      */
-    public static Consumer<Artifact> WriteToMarkdown(File directory, String nameCategory){
+    public static Consumer<Artifact> WriteToMarkdown(File directory, String nameCategory) {
 
-        if(!directory.exists()){
+        if (!directory.exists()) {
             System.out.format("Making directory for markdown at: %s", directory.getPath());
             directory.mkdir();
         }
-        if(!directory.isDirectory()){
-            throw new IllegalArgumentException(String.format("WriteToMarkdown: parameter directory is not a directory! path: %s", directory));
+        if (!directory.isDirectory()) {
+            throw new IllegalArgumentException(
+                    String.format("WriteToMarkdown: parameter directory is not a directory! path: %s", directory));
         }
 
-        return artifact ->{
+        return artifact -> {
             String artifactName;
-        
-            if(!artifact.getDescription(nameCategory).isEmpty()){
-                artifactName = artifact.getDescription(nameCategory).getParts().get(0);
-            }else{
-                artifactName = String.valueOf(artifact.hashCode());
-            }//else
 
-            try (Writer writer =
-             new BufferedWriter(
-                 new FileWriter(
-                     new File(directory, artifactName+ ".md")
-                    )
-             )
-            ) {
-                
+            if (!artifact.getDescription(nameCategory).isEmpty()) {
+                artifactName = artifact.getDescription(nameCategory).getParts().get(0);
+            } else {
+                artifactName = String.valueOf(artifact.hashCode());
+            } // else
+
+            try (Writer writer = new BufferedWriter(new FileWriter(new File(directory, artifactName + ".md")))) {
+
                 writer.append("# " + artifactName + "\n");
 
-                for(Description d: artifact.getAllDescriptions()){
-                   writer.append("---\n");
-                   
-                   writer.append("## " + d.getCategory()+ "\n");
-                  for(String s: d.getParts()){
-                      writer.append("    - " + s+ "\n");
-                  }//for parts
-                }//for description
+                for (Description d : artifact.getAllDescriptions()) {
+                    writer.append("---\n");
 
-            } catch (Exception e) {
-                //TODO: handle exception
+                    writer.append("## " + d.getCategory() + "\n");
+                    for (String s : d.getParts()) {
+                        writer.append("    - " + s + "\n");
+                    } // for parts
+                } // for description
+
+            } catch (IOException e) {
+                // TODO: handle exception
                 e.printStackTrace();
-            }//catch
-        };//lambda
-    }//WriteToMarkdown
 
+            } // catch
+        };// lambda
+    }// WriteToMarkdown
 
 }

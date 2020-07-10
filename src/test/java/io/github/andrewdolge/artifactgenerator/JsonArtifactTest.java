@@ -84,19 +84,36 @@ public class JsonArtifactTest {
         actual.output();
 
     }
-        @Test
-        public void testJsonArtifactArray() throws FileNotFoundException {
-    
-            ArtifactBuilder artifactBuilder = new ArtifactBuilder();
-    
-            IArtifactComponentFactory factory = new JsonArtifactComponentFactory(
-                    new FileInputStream("src/test/resources/Example.json"));
-    
-            artifactBuilder.withComponentFactory(factory).withArtifactConsumer(ArtifactConsumer.PrintToConsole());
-            Artifact actual = artifactBuilder.build();
-            System.out.println("Array Data Test");
-            actual.output();
-    
-        }
+
+    @Test
+    public void testJsonArtifactArray() throws FileNotFoundException {
+
+        ArtifactBuilder artifactBuilder = new ArtifactBuilder();
+
+        IArtifactComponentFactory factory = new JsonArtifactComponentFactory(
+                new FileInputStream("src/test/resources/Example.json"));
+
+        artifactBuilder.withComponentFactory(factory).withArtifactConsumer(ArtifactConsumer.PrintToConsole());
+        Artifact actual = artifactBuilder.build();
+        System.out.println("Array Data Test");
+        actual.output();
+
+    }
+
+    @Test
+    public void testJsonDanglingDependent() throws FileNotFoundException {
+
+        ArtifactBuilder artifactBuilder = new ArtifactBuilder();
+
+        artifactBuilder
+                .withComponentFactory(
+                        new JsonArtifactComponentFactory(new FileInputStream("src/test/resources/Empty.json")))
+                .withComponentFactory(new JsonArtifactComponentFactory(
+                        new FileInputStream("src/test/resources/SerializedDependent.json")))
+                .withArtifactConsumer(ArtifactConsumer.PrintToConsole());
+        Artifact actual = artifactBuilder.build();
+        System.out.println("SerializedDependent Dangling");
+        actual.output();
+    }
 
 }

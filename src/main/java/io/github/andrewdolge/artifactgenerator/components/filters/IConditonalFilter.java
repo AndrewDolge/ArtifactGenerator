@@ -7,10 +7,10 @@ import io.github.andrewdolge.artifactgenerator.Description;
 
 public interface IConditonalFilter {
 
-    public default Predicate<Artifact> getCondition(){
+    public default Predicate<Artifact> getCondition() {
         return FilterConditions.always();
     }
 
     public Predicate<Description> getFilter();
-    
+
 }

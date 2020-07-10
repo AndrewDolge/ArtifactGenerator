@@ -21,83 +21,70 @@ public class CustomDescriptor implements IArtifactDescriptor {
 
     private String dependentCategory;
     private Map<String, List<String>> dependentData;
-   
+
     private ISelectionStrategy<String> selector;
 
     private CustomDescriptor(CustomDescriptorBuilder builder) {
         this.category = builder.getCategory();
-        this.data = builder.getData() != null ? List.copyOf(builder.getData()): null;
+        this.data = builder.getData() != null ? List.copyOf(builder.getData()) : null;
         this.dependentCategory = builder.getDependentCategory();
-        this.dependentData = builder.getDependentData() != null? Map.copyOf(builder.getDependentData()): null;
+        this.dependentData = builder.getDependentData() != null ? Map.copyOf(builder.getDependentData()) : null;
         this.selector = builder.getSelector();
-        
+
     }
+
     @Override
     public Description getDescription() {
-        if(data != null){
-            return new Description(
-                this.category,
-                this.selector.select(data)
-            );
-        }else{
+        if (data != null) {
+            return new Description(this.category, this.selector.select(data));
+        } else {
             return null;
-        } 
-    }//getDescription
+        }
+    }// getDescription
 
     @Override
-    public Description getDescription(List<Description> descriptions){
-               /**
-         * there must be:
-         *  a not null list of descriptions
-         *  exactly one description
-         *  a description that is not null
-         *  whose category is not null and matches our dependent category
-         * and whose parts is not null or empty
+    public Description getDescription(List<Description> descriptions) {
+        /**
+         * there must be: a not null list of descriptions exactly one description a
+         * description that is not null whose category is not null and matches our
+         * dependent category and whose parts is not null or empty
          */
-        if(descriptions != null &&
-           descriptions.size() == 1 && 
-           descriptions.get(0) != null &&
-           descriptions.get(0).getCategory() != null &&
-           descriptions.get(0).getCategory().equals(dependentCategory) &&
-           descriptions.get(0).getParts() != null && !descriptions.get(0).getParts().isEmpty()
-          ){ 
+        if (descriptions != null && descriptions.size() == 1 && descriptions.get(0) != null
+                && descriptions.get(0).getCategory() != null
+                && descriptions.get(0).getCategory().equals(dependentCategory) && descriptions.get(0).getParts() != null
+                && !descriptions.get(0).getParts().isEmpty()) {
 
             List<String> toSelect = new LinkedList<String>();
- 
-            //for each part, check to see if it is in the hashmap of dependent data
+
+            // for each part, check to see if it is in the hashmap of dependent data
             // add that data to the list to select from
-            for(String key: descriptions.get(0).getParts()){
-                if(this.dependentData.get(key) != null){
+            for (String key : descriptions.get(0).getParts()) {
+                if (this.dependentData.get(key) != null) {
                     toSelect.addAll(this.dependentData.get(key));
-                }//if
-            }//for
+                } // if
+            } // for
 
-
-            return new Description(
-                this.category,
-                selector.select( toSelect)
-            );
-        }else{
-            //default value if null checks fail
+            return new Description(this.category, selector.select(toSelect));
+        } else {
+            // default value if null checks fail
             return getDescription();
-        }//else
-    }//getDescription(dependents)
+        } // else
+    }// getDescription(dependents)
 
     @Override
-    public List<String> getDependentCategories(){
-        if(this.dependentCategory != null){
+    public List<String> getDependentCategories() {
+        if (this.dependentCategory != null) {
             return List.of(dependentCategory);
-        }else{
+        } else {
             return Collections.emptyList();
         }
     }
-
 
     public static class CustomDescriptorBuilder implements DescriptorBuilder {
 
         private String category;
         private List<String> data;
-        
+
         private String dependentCategory;
         private HashMap<String, List<String>> dependentData;
 
@@ -184,6 +171,6 @@ public class CustomDescriptor implements IArtifactDescriptor {
             this.selector = ISelectionStrategy.oneRandomSelection();
 
         }
-    }//inner builder class
+    }// inner builder class
 
-}//class
+}// class

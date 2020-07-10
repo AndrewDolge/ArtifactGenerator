@@ -10,7 +10,7 @@ public class SerializedArtifactComponent {
 
     private String category;
     private List<String> data;
-    
+
     private String dependentCategory;
     private Map<String, List<String>> dependentData;
 
@@ -21,7 +21,7 @@ public class SerializedArtifactComponent {
     public SerializedArtifactComponent() {
     }
 
-    public static SerializedArtifactComponent independentExample(){
+    public static SerializedArtifactComponent independentExample() {
         SerializedArtifactComponent component = new SerializedArtifactComponent();
 
         component.setCategory("Category");
@@ -30,11 +30,11 @@ public class SerializedArtifactComponent {
         return component;
     }
 
-    public static SerializedArtifactComponent dependentExample(){
+    public static SerializedArtifactComponent dependentExample() {
         SerializedArtifactComponent component = new SerializedArtifactComponent();
-        Map<String,List<String>> map = new HashMap<String, List<String>>();
-            map.put("Result 1", List.of("Result A","Result B"));
-            map.put("Result 2", List.of("Result C","Result D"));
+        Map<String, List<String>> map = new HashMap<String, List<String>>();
+        map.put("Result 1", List.of("Result A", "Result B"));
+        map.put("Result 2", List.of("Result C", "Result D"));
 
         component.setCategory("Dependent Category");
         component.setDependentCategory("Category");
@@ -43,19 +43,19 @@ public class SerializedArtifactComponent {
         return component;
     }
 
-    public static SerializedArtifactComponent exclusiveExample(){
+    public static SerializedArtifactComponent exclusiveExample() {
         SerializedArtifactComponent component = new SerializedArtifactComponent();
 
         component.setCategory("Exclusive Category");
 
         component.setData(List.of("Result Q", "Result X"));
-     
+
         component.setExclusive(List.of("Dependent Category", "Exclusive Category", "Selector Category"));
 
         return component;
     }
 
-    public static SerializedArtifactComponent selectorExample(){
+    public static SerializedArtifactComponent selectorExample() {
 
         SerializedArtifactComponent component = new SerializedArtifactComponent();
         SerializedCustomSelector selector = new SerializedCustomSelector();
@@ -72,23 +72,21 @@ public class SerializedArtifactComponent {
 
     }
 
-    public boolean isExclusive(){
+    public boolean isExclusive() {
         return exclusive != null && !exclusive.isEmpty();
     }
 
-    public boolean hasIndependentData(){
+    public boolean hasIndependentData() {
         return getCategory() != null && getData() != null && !getData().isEmpty();
     }
 
     public boolean hasDependentData() {
-        return getCategory()          != null && 
-               getDependentCategory() != null && 
-               getDependentData()     != null && 
-               !getDependentData().isEmpty();
-	}
+        return getCategory() != null && getDependentCategory() != null && getDependentData() != null
+                && !getDependentData().isEmpty();
+    }
 
-    public boolean hasSelectionStrategy(){
-        return this.selector !=null;
+    public boolean hasSelectionStrategy() {
+        return this.selector != null;
     }
 
     public String getCategory() {
@@ -145,15 +143,12 @@ public class SerializedArtifactComponent {
         this.selector = selector;
     }
 
-    public ISelectionStrategy<String> getStrategyFromSelector(){
-        if(selector != null){
+    public ISelectionStrategy<String> getStrategyFromSelector() {
+        if (selector != null) {
             return selector.getSelectionStrategy();
-        }else{
+        } else {
             return null;
         }
     }
-
-
-
 
 }

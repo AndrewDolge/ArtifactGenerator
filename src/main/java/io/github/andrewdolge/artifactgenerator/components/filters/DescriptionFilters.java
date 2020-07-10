@@ -16,12 +16,14 @@ import io.github.andrewdolge.artifactgenerator.Description;
 public class DescriptionFilters {
 
     /**
-     * Returns a description filter that will include all the given categories (if they are present), and excludes all other categories.
+     * Returns a description filter that will include all the given categories (if
+     * they are present), and excludes all other categories.
+     * 
      * @param categories the accepted categories
      * @return a description filter that accepts only the given categories.
      */
-    public static Predicate<Description> acceptOnly(List<String> categories){
+    public static Predicate<Description> acceptOnly(List<String> categories) {
         return (description) -> categories.contains(description.getCategory());
-    }//acceptOnly
-    
-}//interface
+    }// acceptOnly
+
+}// interface

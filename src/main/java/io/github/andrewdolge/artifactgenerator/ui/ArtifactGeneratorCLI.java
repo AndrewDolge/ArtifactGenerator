@@ -28,24 +28,20 @@ import picocli.CommandLine.Option;
 @Command(name = "artifactgenerator", mixinStandardHelpOptions = true, version = "1.1", description = "generates artifacts of shadowy origins...")
 public class ArtifactGeneratorCLI implements Callable<Integer> {
 
-    @Option(names = {"-c", "--custom"},
-            description="Adds custom categories and descriptions to the artifact. Example: -c \'Color=red,blue;Shape=circle;\'"
-    )
+    @Option(names = { "-c",
+            "--custom" }, description = "Adds custom categories and descriptions to the artifact. Example: -c \'Color=red,blue;Shape=circle;\'")
     private String customDescriptors;
 
     @Option(names = { "-d",
-            "--descriptor-directory" },
-             description = "The directory of files where descriptors and other modifiers live."
-             )
+            "--descriptor" }, description = "The directory of files where descriptors and other modifiers live.")
     private File descriptorDirectory = new File("./descriptors/");
 
-    @Option(names = { "-n", "--number" },description = "Specifies the number of artifacts to generate.")
+    @Option(names = { "-n", "--number" }, description = "Specifies the number of artifacts to generate.")
     private int numberOfArtifacts = 1;
 
-    @Option(names = { "-m","--markdown" },description = "Tells the generator to create artifacts and output them as Markdown (.md) files in the given directory")
+    @Option(names = { "-m",
+            "--markdown" }, description = "Tells the generator to create artifacts and output them as Markdown (.md) files in the given directory")
     private File markdownDirectory;
-
-
 
     private Consumer<Artifact> consumer = ArtifactConsumer.PrintToConsole();
 
@@ -75,11 +71,9 @@ public class ArtifactGeneratorCLI implements Callable<Integer> {
                     exampleJsonFile.createNewFile();
                     Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
-                    SerializedArtifactComponent[] components = { 
-                            SerializedArtifactComponent.independentExample(),
+                    SerializedArtifactComponent[] components = { SerializedArtifactComponent.independentExample(),
                             SerializedArtifactComponent.dependentExample(),
-                            SerializedArtifactComponent.selectorExample()
-                        };
+                            SerializedArtifactComponent.selectorExample() };
 
                     gson.toJson(components, writer);
 
@@ -107,7 +101,7 @@ public class ArtifactGeneratorCLI implements Callable<Integer> {
 
         } // if markdownDirectory is not null
 
-        /*------------------------------------------ Build the Artifact ----------------------------------------------------*/
+        /*------------------------------------------ Set ArtifactBuilder ----------------------------------------------------*/
         ArtifactBuilder artifactBuilder = new ArtifactBuilder();
 
         for (File f : descriptorDirectory.listFiles()) {
@@ -125,23 +119,22 @@ public class ArtifactGeneratorCLI implements Callable<Integer> {
             } // if
         } // for
 
-        //add custom descriptors from the command line. This should always be the last thing to be added to the artifact.
-        try{
-            if(customDescriptors != null){
+        // add custom descriptors from the command line. This should always be the last
+        // thing to be added to the artifact.
+        try {
+            if (customDescriptors != null) {
                 List<IArtifactDescriptor> cliDescriptors = parseCLIDescriptor(customDescriptors);
-                for(IArtifactDescriptor cliDescriptor: cliDescriptors){
+                for (IArtifactDescriptor cliDescriptor : cliDescriptors) {
                     artifactBuilder.withDescriptor(cliDescriptor);
-                }//for
-            }//if 
-        }catch(IllegalArgumentException iae){
-            System.out.format("Could not parse custom CLI descriptor: %s\n Type 'ArtifactGenerator -h` for help.", customDescriptors);
+                } // for
+            } // if
+        } catch (IllegalArgumentException iae) {
+            System.out.format("Could not parse custom CLI descriptor: %s\n Type 'ArtifactGenerator -h` for help.",
+                    customDescriptors);
             System.exit(-1);
         }
 
-
-/*
-    * ------------------------------------ output the Artifact---------------------------------------------------
-    */
+        /*------------------------------------------ Build the Artifact ----------------------------------------------------*/
         artifactBuilder.withArtifactConsumer(consumer);
 
         for (int i = 0; i < numberOfArtifacts; i++) {
@@ -151,32 +144,46 @@ public class ArtifactGeneratorCLI implements Callable<Integer> {
         return 0;
     }// call
 
+    /**
+     * Parses the custom option from the CLI.
+     * 
+
+     * 
+     * A mapping of categories to description parts should be separated by equals(=), and should be terminated with a semicolon(;).
+     * 
+     * A mapping can have multiple parts, and they should be separated by a comma(,).
+     * 
+     * For Example:
+     * 
+     * The custom option from the command line should be followed by a string in the format:
+     * CategoryA=part1;CategoryB=part2,part3;
+     * 
+     */
     public static List<IArtifactDescriptor> parseCLIDescriptor(String cliString) {
         List<IArtifactDescriptor> toReturn = new LinkedList<IArtifactDescriptor>();
         CustomDescriptorBuilder builder = new CustomDescriptorBuilder();
 
         Pattern descriptorPattern = Pattern.compile(".+=.+;");
 
-        if(descriptorPattern.matcher(cliString).matches()){
+        if (descriptorPattern.matcher(cliString).matches()) {
             String[] strDescriptors = cliString.split(";");
 
             for (String strDescriptor : strDescriptors) {
                 builder.reset();
-    
+
                 String category = strDescriptor.split("=")[0];
-                String[] parts  = strDescriptor.split("=")[1].split(",");
-    
-                builder.withCategory(category)
-                .withIndependentData(parts)
-                .withSelectionStrategy(ISelectionStrategy.all());
+                String[] parts = strDescriptor.split("=")[1].split(",");
+
+                builder.withCategory(category).withIndependentData(parts)
+                        .withSelectionStrategy(ISelectionStrategy.all());
 
                 toReturn.add(builder.build());
-    
-            }//for
+
+            } // for
             return toReturn;
 
-        }else{
+        } else {
             throw new IllegalArgumentException("ArtifactGeneratorCLI.parseCLIDescriptor: invalid descriptor string! ");
         }
-    }//parseCLIDescriptor
+    }// parseCLIDescriptor
 }// class

@@ -20,221 +20,113 @@ import io.github.andrewdolge.artifactgenerator.components.descriptors.ISelection
 import io.github.andrewdolge.artifactgenerator.components.filters.DescriptionFilters;
 import io.github.andrewdolge.artifactgenerator.components.filters.FilterConditions;
 
-
 public class ArtifactTest {
 
-    public static Consumer<Artifact> getAssertionConsumer(List<Description> expected){
-        return  artifact -> {
-                
-                assertEquals(expected, artifact.getAllDescriptions());
+    public static Consumer<Artifact> getAssertionConsumer(List<Description> expected) {
+        return artifact -> {
 
-            };     
-    }
-        
+            assertEquals(expected, artifact.getAllDescriptions());
 
-
-    private IArtifactDescriptor getOriginDescriptor(){
-
-       CustomDescriptorBuilder builder = new CustomDescriptorBuilder();
-
-       return builder
-       .withCategory("Origin")
-       .withIndependentData( "Level 1","Level 2","Level 3","Level 4","Level 5","Level 6","Level 7","Level 8")
-       .withSelectionStrategy(ISelectionStrategy.<String>oneRandomSelection())
-       .build();
+        };
     }
 
-    private IArtifactDescriptor getColorDescriptor(double startProbability, double multiplier){
+    private IArtifactDescriptor getOriginDescriptor() {
 
         CustomDescriptorBuilder builder = new CustomDescriptorBuilder();
 
         return builder
-        .withCategory("Color")
-        .withIndependentData( "Blue", "Red", "Green", "Yellow", "White", "Black")
-        .withSelectionStrategy(ISelectionStrategy.anyMultiplicativeProbabilityRandomSelection(startProbability, multiplier))
-        .build();
+                .withCategory("Origin").withIndependentData("Level 1", "Level 2", "Level 3", "Level 4", "Level 5",
+                        "Level 6", "Level 7", "Level 8")
+                .withSelectionStrategy(ISelectionStrategy.<String>oneRandomSelection()).build();
     }
 
+    private IArtifactDescriptor getColorDescriptor(double startProbability, double multiplier) {
+
+        CustomDescriptorBuilder builder = new CustomDescriptorBuilder();
+
+        return builder.withCategory("Color").withIndependentData("Blue", "Red", "Green", "Yellow", "White", "Black")
+                .withSelectionStrategy(
+                        ISelectionStrategy.anyMultiplicativeProbabilityRandomSelection(startProbability, multiplier))
+                .build();
+    }
 
     /**
      * To be used with getOriginDescriptor
+     * 
      * @return
      */
-    private IArtifactDescriptor getDependentDescriptor(){
+    private IArtifactDescriptor getDependentDescriptor() {
 
-        HashMap<String,List<String>> map = new HashMap<>();
+        HashMap<String, List<String>> map = new HashMap<>();
 
-        map.put("Level 1", Arrays.asList("Very Poor","Very Poor","Very Poor","Poor","Poor","Poor","Poor","Average","Average","Average"));
-        map.put("Level 2", Arrays.asList("Very Poor","Very Poor","Poor","Poor","Average","Average","Average","Average","Good","Good"));
-        map.put("Level 3", Arrays.asList("Poor","Poor","Average","Average","Average","Average","Good","Good","Good","Very Good"));
-        map.put("Level 4", Arrays.asList("Average","Average","Average","Average","Average","Good","Good","Good","Very Good","Very Good"));
+        map.put("Level 1", Arrays.asList("Very Poor", "Very Poor", "Very Poor", "Poor", "Poor", "Poor", "Poor",
+                "Average", "Average", "Average"));
+        map.put("Level 2", Arrays.asList("Very Poor", "Very Poor", "Poor", "Poor", "Average", "Average", "Average",
+                "Average", "Good", "Good"));
+        map.put("Level 3", Arrays.asList("Poor", "Poor", "Average", "Average", "Average", "Average", "Good", "Good",
+                "Good", "Very Good"));
+        map.put("Level 4", Arrays.asList("Average", "Average", "Average", "Average", "Average", "Good", "Good", "Good",
+                "Very Good", "Very Good"));
 
         CustomDescriptorBuilder builder = new CustomDescriptorBuilder();
 
-        return builder
-        .withCategory("Quality")
-        .withDependentData("Origin", map)
-        .build();
-        
+        return builder.withCategory("Quality").withDependentData("Origin", map).build();
 
     }
 
-    private IArtifactDescriptor getValueDescriptor(int value){
+    private IArtifactDescriptor getValueDescriptor(int value) {
         CustomDescriptorBuilder builder = new CustomDescriptorBuilder();
-        
-        return builder
-        .withCategory("Value")
-        .withIndependentData(String.valueOf(value))
-        .build();
-       
+
+        return builder.withCategory("Value").withIndependentData(String.valueOf(value)).build();
+
     }
-
-    /*
-    private IArtifactDescriptor getJsonTestDescriptor() throws FileNotFoundException{
-        CustomDescriptorBuilder builder = new CustomDescriptorBuilder();
-        DescriptorDirector director = new DescriptorDirector(builder);
-
-        director.buildWithJson(
-            new FileInputStream("src/test/resources/Test.json")
-        );
-        
-        return builder.build();
-    }*/
-
-    /**
-     * Tests a descriptor from json with a specified selector
-     * @return
-     * @throws FileNotFoundException
-     *
-    private IArtifactDescriptor getJsonTestDescriptorWithSelector() throws FileNotFoundException{
-        CustomDescriptorBuilder builder = new CustomDescriptorBuilder();
-        DescriptorDirector director = new DescriptorDirector(builder);
-        director.buildWithJson(
-            new FileInputStream("src/test/resources/TestSelector.json")
-        );
-        
-        return builder.build();
-    }
-    
-
-
-    private IArtifactDescriptor getJsonTestDescriptorWithDependent() throws FileNotFoundException{
-        CustomDescriptorBuilder builder = new CustomDescriptorBuilder();
-        DescriptorDirector director = new DescriptorDirector(builder);
-        director.buildWithJson(
-            new FileInputStream("src/test/resources/TestDependent.json")
-        );
-        
-        return builder.build();
-    }
-    */
-
 
     /**
      * Create an Artifact with one Descriptor and output it to the console.
      * 
      */
-    @Test public void testArtifactBuilder() {
-        
+    @Test
+    public void testArtifactBuilder() {
+
         ArtifactBuilder builder = new ArtifactBuilder();
 
-        builder
-        .withDescriptor(getOriginDescriptor())
-        .withDescriptor(getColorDescriptor(0.75,0.75))
-        .withArtifactConsumer(ArtifactConsumer.PrintToConsole());
+        builder.withDescriptor(getOriginDescriptor()).withDescriptor(getColorDescriptor(0.75, 0.75))
+                .withArtifactConsumer(ArtifactConsumer.PrintToConsole());
         Artifact a = builder.build();
 
-        assertNotNull("Artifact with no Descriptors should not be null", a );
+        assertNotNull("Artifact with no Descriptors should not be null", a);
 
         a.output();
-    }//testArtifactbuilder method
+    }// testArtifactbuilder method
 
-    @Test public void testArtifactWithDependentDescriptor(){
+    @Test
+    public void testArtifactWithDependentDescriptor() {
 
         ArtifactBuilder builder = new ArtifactBuilder();
 
         IArtifactDescriptor qualityDescriptor = getDependentDescriptor();
 
-        builder
-            .withDescriptor(getOriginDescriptor())
-            .withDescriptor(qualityDescriptor)
-            .withArtifactConsumer(ArtifactConsumer.PrintToConsole());
+        builder.withDescriptor(getOriginDescriptor()).withDescriptor(qualityDescriptor)
+                .withArtifactConsumer(ArtifactConsumer.PrintToConsole());
 
         Artifact a = builder.build();
 
-        assertNotNull("Artifact with no Descriptors should not be null", a );
+        assertNotNull("Artifact with no Descriptors should not be null", a);
 
         a.output();
     }
-    
-    @Test public void testArtifactWithFilters(){
+
+    @Test
+    public void testArtifactWithFilters() {
         ArtifactBuilder builder = new ArtifactBuilder();
 
-        builder.withDescriptor(getOriginDescriptor())
-        .withDescriptor(getColorDescriptor(0.75, 0.5))
-        .withDescriptor(getValueDescriptor(8))
-        .withArtifactConsumer(ArtifactConsumer.PrintToConsole())
-        .withFilter(
-            FilterConditions.isCategoryPresent("Color"),
-            DescriptionFilters.acceptOnly(Arrays.asList("Origin", "Color"))
-        );
+        builder.withDescriptor(getOriginDescriptor()).withDescriptor(getColorDescriptor(0.75, 0.5))
+                .withDescriptor(getValueDescriptor(8)).withArtifactConsumer(ArtifactConsumer.PrintToConsole())
+                .withFilter(FilterConditions.isCategoryPresent("Color"),
+                        DescriptionFilters.acceptOnly(Arrays.asList("Origin", "Color")));
 
-        builder.build()
-        .output();
-
+        builder.build().output();
 
     }
-/* 
-    @Test public void testArtifactWithJson(){
-        ArtifactBuilder builder = new ArtifactBuilder();
 
-        try{
-            builder.add(
-                getJsonTestDescriptor()
-                )
-            .withArtifactConsumer(ArtifactConsumer.PrintToConsole())
-            .build()
-            .output();
-        }catch(FileNotFoundException fnfe){
-            throw new RuntimeException(fnfe);
-        }
-        
-    } */
-
-/*     @Test public void testArtifactWithJsonSelector()  {
-
-        ArtifactBuilder builder = new ArtifactBuilder();
-        try{
-            builder
-            .add(getOriginDescriptor())
-            .add(getJsonTestDescriptorWithSelector())
-            .withArtifactConsumer(ArtifactConsumer.PrintToConsole())
-            .build()
-            .output();
-        }catch(FileNotFoundException fnfe){
-            throw new RuntimeException(fnfe);
-        }
-    } */
-
-    /*
-    @Test public void testArtifactWithJsonDependent(){
-        ArtifactBuilder builder = new ArtifactBuilder();
-
-        try {
-            builder
-            .add(getOriginDescriptor())
-            .add(getJsonTestDescriptorWithDependent())
-            .withArtifactConsumer(ArtifactConsumer.PrintToConsole());
-
-        } catch (FileNotFoundException fnfe) {
-            throw new RuntimeException(fnfe);
-        }
-        Artifact a = builder.build();
-
-        assertNotNull("Artifact with no Descriptors should not be null", a );
-
-        a.output();
-    }
-    */
-
-}//test class
+}// test class

@@ -23,7 +23,7 @@ import io.github.andrewdolge.artifactgenerator.components.filters.IConditonalFil
  * 
  * Factories that implement this interface should provide a list of descriptors
  * and filters. If they do not create any of the given components, then they
- * should return an empty list instead. 
+ * should return an empty list instead.
  * 
  * A typical implementation of this factory would take in some form of input
  * that can be translated to any number of descriptors and filters.
@@ -34,12 +34,14 @@ public interface IArtifactComponentFactory {
 
     /**
      * Creates any number of descriptors.
+     * 
      * @return a list of descriptors, or an empty list if there are no descriptors.
      */
     public List<IArtifactDescriptor> createDescriptors();
 
     /**
      * Creates any number of filters.
+     * 
      * @return a list of filters, or an empty list if there are no descriptors.
      */
     public List<IConditonalFilter> createFilters();

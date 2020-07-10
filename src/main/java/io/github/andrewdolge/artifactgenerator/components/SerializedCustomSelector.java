@@ -11,7 +11,7 @@ public class SerializedCustomSelector {
     private boolean withReplacement;
 
     public SerializedCustomSelector() {
-        //set defaults to emulate oneRandomDraw.
+        // set defaults to emulate oneRandomDraw.
         min = 1;
         max = 1;
         probability = 1.0;
@@ -19,7 +19,7 @@ public class SerializedCustomSelector {
         withReplacement = true;
     }
 
-    public ISelectionStrategy<String> getSelectionStrategy(){
+    public ISelectionStrategy<String> getSelectionStrategy() {
 
         return ISelectionStrategy.customSelectionStrategy(min, max, probability, multiplier, withReplacement);
     }
@@ -64,6 +64,4 @@ public class SerializedCustomSelector {
         this.withReplacement = withReplacement;
     }
 
-
-    
 }
