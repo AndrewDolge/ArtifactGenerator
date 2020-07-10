@@ -25,7 +25,7 @@ import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
-@Command(name = "artifactgenerator", mixinStandardHelpOptions = true, version = "1.1", description = "generates artifacts of shadowy origins...")
+@Command(name = "ArtifactGenerator", mixinStandardHelpOptions = true, version = "1.1", description = "generates artifacts of shadowy origins...")
 public class ArtifactGeneratorCLI implements Callable<Integer> {
 
     @Option(names = { "-c",
