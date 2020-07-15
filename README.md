@@ -120,3 +120,6 @@ In addition, a `selector` object can be specified, which determines how the desc
   }
 ]
 ```
+## License
+
+ArtifactGenerator is licensed under the [Apache License 2.0](https://github.com/AndrewDolge/ArtifactGenerator/blob/master/LICENSE)
