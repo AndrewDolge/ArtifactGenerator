@@ -13,7 +13,8 @@ plugins {
     // Apply the application plugin to add support for building an application
     id 'application'
 
-    id "org.beryx.runtime" version "1.3.0"
+    id "org.beryx.runtime" version "1.11.0"
+
 }
  
 runtime {
@@ -38,8 +39,6 @@ dependencies {
     testImplementation 'junit:junit:4.12'
 }
 
-
 application {
     mainClass = 'io.github.andrewdolge.artifactgenerator.ui.ArtifactGeneratorCLI'
 }
-
